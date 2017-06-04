@@ -1,0 +1,94 @@
+<html>
+
+<canvas id="gameCanvas" width="800" height="600"></canvas>
+
+<script>
+var canvas;
+var canvasContext;
+
+var ballRadius = 10;
+var ballX = ballRadius;
+var ballY = ballRadius;
+var xVelo = 1;
+var yVelo = 1;
+
+var paddleWidth;
+var paddleHeight;
+var paddle1X;
+var paddle2X;
+var paddle1Y;
+var paddle2Y;
+
+window.onload = function() {
+	canvas = document.getElementById('gameCanvas');
+	canvasContext = canvas.getContext('2d');
+
+	//make all this scale to the canvas?
+	paddleWidth = 10;
+	paddleHeight = 100;
+	paddle1X = 10;
+	paddle2X = canvas.width - (paddle1X + paddleWidth);
+	paddle1Y = 0;
+	paddle2Y = paddle1Y;
+
+	//draws a new frame every so often
+	var fps = 60;
+	setInterval(function() {
+		moveBall();
+		updateCanvas();
+	}, 1000 / fps);
+
+	//update player paddle position
+	canvas.addEventListener('mousemove',
+		function(evt) {
+			var mousePos = getMouse(evt);
+			if (mousePos.y < paddleHeight / 2) paddle1Y = 0;
+			else if (mousePos.y > canvas.height - paddleHeight / 2) paddle1Y = canvas.height - paddleHeight;
+			else paddle1Y = mousePos.y - paddleHeight / 2;
+		});
+}
+
+function moveBall () {
+	ballX += xVelo;
+	ballY += yVelo; 
+	if (ballX + ballRadius == canvas.width || ballX - ballRadius == 0) xVelo *= -1;
+	if (ballY + ballRadius == canvas.height || ballY - ballRadius == 0) yVelo *= -1;
+}
+
+function updateCanvas () {
+	canvasContext.fillStyle = "black";
+	canvasContext.fillRect(0, 0, canvas.width, canvas.height);
+	
+	//paddle1
+	drawRect(paddle1X, paddle1Y, paddleWidth, paddleHeight, "white");
+
+	//ball
+	drawCircle(ballX, ballY, ballRadius, "white");
+}
+
+function drawCircle (x, y, radius, color) {
+	canvasContext.fillStyle = color;
+	canvasContext.beginPath();
+	canvasContext.arc(x, y, radius, 0, 2 * Math.PI, true);
+	canvasContext.fill();
+}
+
+function drawRect (x, y, width, height, color) {
+	canvasContext.fillStyle = color;
+	canvasContext.fillRect(x, y, width, height);
+}
+
+function getMouse (evt) {
+	var rect = canvas.getBoundingClientRect();
+	var root = document.documentElement;
+	var mouseX = evt.clientX - rect.left - root.scrollLeft;
+	var mouseY = evt.clientY - rect.top - root.scrollTop;
+	return {
+		x:mouseX,
+		y:mouseY
+	};
+}
+
+</script>
+
+</html>
